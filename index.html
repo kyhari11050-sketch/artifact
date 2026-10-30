@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>역사의 쓸모: 구석기부터 고려시대까지 초등 탐험대</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts (Gothic A1) -->
+    <link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandYellow: '#FFB800',
+                        brandOrange: '#FF6B00',
+                        brandBlue: '#3B82F6',
+                        brandGreen: '#10B981',
+                        brandPurple: '#8B5CF6',
+                        eraPaleo: '#8D6E63',
+                        eraBronze: '#D4AC0D',
+                        eraThreeKingdoms: '#E74C3C',
+                        eraNorthSouth: '#3498DB',
+                        eraGoryeo: '#1ABC9C'
+                    },
+                    fontFamily: {
+                        sans: ['Gothic A1', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Gothic A1', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            background-color: #F8FAFC;
+        }
+
+        /* Perspective card flip animations */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: floatSlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); }
+        }
+        .glow-effect {
+            animation: pulseGlow 2s infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between antialiased selection:bg-amber-200">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-md border-b border-amber-200">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- App Logo & Title -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-12 h-12 bg-gradient-to-tr from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg transform hover:scale-105 transition-transform">
+                    📜
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-600 via-orange-600 to-red-600">
+                        역사의 쓸모
+                    </h1>
+                    <p class="text-[11px] sm:text-xs text-amber-800 font-extrabold">구석기부터 고려까지 초등 탐험대</p>
+                </div>
+            </div>
+
+            <!-- Player Status Header & Sound Control -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="bg-amber-100/80 border border-amber-300 px-3 py-1.5 rounded-2xl flex items-center space-x-2 shadow-sm">
+                    <span class="text-base sm:text-lg">⭐</span>
+                    <span class="text-xs sm:text-sm font-black text-amber-900" id="headerScore">0 점</span>
+                </div>
+
+                <div class="bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-2xl flex items-center space-x-2 cursor-pointer hover:bg-indigo-100 transition shadow-sm" onclick="openNicknameModal()">
+                    <span class="text-base" id="headerAvatar">🤠</span>
+                    <span class="text-xs font-black text-indigo-900 max-w-[70px] sm:max-w-[100px] truncate" id="headerName">역사탐험가</span>
+                    <i class="fa-solid fa-pen text-[10px] text-indigo-400"></i>
+                </div>
+
+                <button id="soundBtn" onclick="toggleSound()" class="w-9 h-9 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-200 active:scale-95 transition shadow-sm" title="음향 온/오프">
+                    <i class="fa-solid fa-volume-high text-sm" id="soundIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-inner">
+            <div class="max-w-6xl mx-auto px-2 flex justify-around sm:justify-center sm:space-x-8 font-bold text-xs sm:text-sm">
+                <button onclick="switchTab('home')" class="nav-tab py-2.5 px-3 sm:px-5 flex items-center space-x-1.5 border-b-4 border-white font-black text-amber-950 bg-white/20" id="tab-home">
+                    <i class="fa-solid fa-compass"></i>
+                    <span>탐험 본부</span>
+                </button>
+                <button onclick="switchTab('games')" class="nav-tab py-2.5 px-3 sm:px-5 flex items-center space-x-1.5 border-b-4 border-transparent hover:text-amber-100 transition" id="tab-games">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>역사 게임</span>
+                </button>
+                <button onclick="switchTab('museum')" class="nav-tab py-2.5 px-3 sm:px-5 flex items-center space-x-1.5 border-b-4 border-transparent hover:text-amber-100 transition" id="tab-museum">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span>보물 도감</span>
+                </button>
+                <button onclick="switchTab('ranking')" class="nav-tab py-2.5 px-3 sm:px-5 flex items-center space-x-1.5 border-b-4 border-transparent hover:text-amber-100 transition" id="tab-ranking">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>명예의 전당</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- ================= SECTION 1: HOME DASHBOARD ================= -->
+        <section id="sec-home" class="space-y-6">
+            <!-- Hero Educational Banner -->
+            <div class="bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-amber-300/40">
+                <div class="absolute -right-6 -bottom-8 opacity-15 text-[180px] pointer-events-none select-none">👑</div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-block bg-amber-950/40 text-amber-200 text-xs font-black px-3.5 py-1.5 rounded-full mb-3 backdrop-blur-sm border border-amber-300/30">
+                        💡 초등학교 5학년 사회·역사 연계 프로젝트
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-black mb-3 leading-tight tracking-tight">
+                        과거에서 지혜를 찾아<br><span class="text-yellow-200 underline decoration-amber-300 decoration-wavy">오늘을 더 멋지게 사는 역사의 쓸모!</span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-amber-100 mb-6 font-bold leading-relaxed">
+                        역사는 암기 과목이 아니에요! 선조들의 도전, 실수, 성공 이야기를 통해<br class="hidden sm:inline">
+                        **친구와의 갈등, 선택의 순간, 미래의 꿈**을 풀어낼 진짜 스마트한 힌트를 얻어보세요.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="switchTab('games')" class="bg-white text-orange-600 font-black px-6 py-3 rounded-2xl shadow-lg hover:bg-amber-50 active:scale-95 transition flex items-center space-x-2">
+                            <span>🚀 게임하고 역사 보물 모으기</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <button onclick="switchTab('museum')" class="bg-amber-900/40 border border-white/40 text-white font-extrabold px-5 py-3 rounded-2xl hover:bg-amber-900/60 active:scale-95 transition flex items-center space-x-2 backdrop-blur-sm">
+                            <i class="fa-solid fa-book-open"></i>
+                            <span>보물도감 구경하기</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eras Map / Timeline Quick Overview -->
+            <div>
+                <h3 class="text-lg font-black text-slate-800 mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-map-location-dot text-amber-500"></i>
+                    <span>탐험할 5대 역사 시대 (초등 5학년 필수)</span>
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+                    <div class="bg-stone-50 border-2 border-stone-200 p-4 rounded-2xl text-center shadow-sm hover:border-amber-400 transition">
+                        <div class="text-3xl mb-1">🦴</div>
+                        <h4 class="font-black text-stone-800 text-sm">구석기 · 신석기</h4>
+                        <p class="text-[11px] text-stone-600 font-bold mt-1">주먹도끼 · 빗살무늬토기</p>
+                        <span class="inline-block mt-2 text-[10px] bg-stone-200 text-stone-700 px-2 py-0.5 rounded-md font-extrabold">도구와 정착</span>
+                    </div>
+                    <div class="bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl text-center shadow-sm hover:border-amber-400 transition">
+                        <div class="text-3xl mb-1">🪨</div>
+                        <h4 class="font-black text-amber-900 text-sm">청동기 · 고조선</h4>
+                        <p class="text-[11px] text-amber-700 font-bold mt-1">고인돌 · 비파형동검</p>
+                        <span class="inline-block mt-2 text-[10px] bg-amber-200 text-amber-800 px-2 py-0.5 rounded-md font-extrabold">최초의 국가</span>
+                    </div>
+                    <div class="bg-red-50 border-2 border-red-200 p-4 rounded-2xl text-center shadow-sm hover:border-red-400 transition">
+                        <div class="text-3xl mb-1">⚔️</div>
+                        <h4 class="font-black text-red-900 text-sm">삼국시대 & 가야</h4>
+                        <p class="text-[11px] text-red-700 font-bold mt-1">광개토대왕 · 화랑도</p>
+                        <span class="inline-block mt-2 text-[10px] bg-red-200 text-red-800 px-2 py-0.5 rounded-md font-extrabold">영토 확장과 경쟁</span>
+                    </div>
+                    <div class="bg-blue-50 border-2 border-blue-200 p-4 rounded-2xl text-center shadow-sm hover:border-blue-400 transition">
+                        <div class="text-3xl mb-1">🏛️</div>
+                        <h4 class="font-black text-blue-900 text-sm">남북국시대</h4>
+                        <p class="text-[11px] text-blue-700 font-bold mt-1">통일신라 · 발해</p>
+                        <span class="inline-block mt-2 text-[10px] bg-blue-200 text-blue-800 px-2 py-0.5 rounded-md font-extrabold">문화의 꽃</span>
+                    </div>
+                    <div class="bg-emerald-50 border-2 border-emerald-200 p-4 rounded-2xl text-center shadow-sm hover:border-emerald-400 transition col-span-2 sm:col-span-1">
+                        <div class="text-3xl mb-1">🏺</div>
+                        <h4 class="font-black text-emerald-900 text-sm">고려시대</h4>
+                        <p class="text-[11px] text-emerald-700 font-bold mt-1">서희 외교 · 고려청자</p>
+                        <span class="inline-block mt-2 text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-md font-extrabold">소통과 독창성</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badges Shelf & Daily Wisdom Quote -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Badges -->
+                <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-md border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-black text-slate-800 flex items-center space-x-2 text-base">
+                            <i class="fa-solid fa-award text-amber-500"></i>
+                            <span>나의 탐험 업적 뱃지</span>
+                        </h3>
+                        <span class="text-xs bg-amber-100 text-amber-900 font-black px-3 py-1 rounded-full" id="badgeCountText">0 / 5 획득</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center" id="badgeContainer">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Daily Tip / Wisdom Quote -->
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-100 p-6 rounded-3xl shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between text-indigo-700 font-black text-xs mb-3">
+                            <span class="flex items-center space-x-1">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <span>오늘의 역사의 쓸모 코칭</span>
+                            </span>
+                            <button onclick="rotateDailyWisdom()" class="text-[10px] text-indigo-500 hover:text-indigo-800 bg-white px-2 py-0.5 rounded-md border border-indigo-200">
+                                <i class="fa-solid fa-rotate"></i> 다른 지혜
+                            </button>
+                        </div>
+                        <h4 class="font-black text-indigo-950 text-lg mb-2" id="dailyTipTitle">서희 장군의 외교 담판</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed font-bold" id="dailyTipDesc">
+                            "싸우지 않고 당당하게 소통하는 말 한마디가 백만 대군보다 강력합니다. 친구와의 오해도 주먹이나 화가 아닌 진심 어린 대화로 풀어보세요!"
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-indigo-200/60 flex items-center justify-between text-[11px] text-indigo-700 font-black">
+                        <span id="dailyTipTag">#지혜 #소통 #리더십</span>
+                        <span class="text-indigo-400">초등 5학년 지혜</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 2: MINI GAMES LIST ================= -->
+        <section id="sec-games" class="hidden space-y-6">
+            <div class="text-center max-w-xl mx-auto mb-6">
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-800 mb-2">🎮 신나는 역사 미니게임</h2>
+                <p class="text-xs sm:text-sm text-slate-500 font-bold">4가지 게임을 즐기고 탐험 점수를 모아 전국 랭킹에 도전해보세요!</p>
+            </div>
+
+            <!-- Games Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Game Card 1: Quiz King -->
+                <div class="bg-white rounded-3xl border-2 border-amber-200 p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-amber-100 text-amber-900 text-xs font-black px-3 py-1 rounded-full">지식 쑥쑥</span>
+                            <span class="text-xs font-black text-slate-400" id="quizHighScore">최고점: 0점</span>
+                        </div>
+                        <div class="flex items-center space-x-4 mb-3">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center text-3xl shadow-md">
+                                👑
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-black text-slate-800">역사 퀴즈왕</h3>
+                                <p class="text-xs text-slate-500 font-bold mt-0.5">핵심 퀴즈를 풀고 연속 정답 콤보 및 핵심 해설을 받아보세요!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="startQuizGame()" class="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-white font-black py-3 rounded-2xl shadow-md active:scale-98 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>퀴즈 시작하기</span>
+                    </button>
+                </div>
+
+                <!-- Game Card 2: Artifact Memory Flip -->
+                <div class="bg-white rounded-3xl border-2 border-indigo-200 p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-indigo-100 text-indigo-900 text-xs font-black px-3 py-1 rounded-full">기억력 Up</span>
+                            <span class="text-xs font-black text-slate-400" id="memoryHighScore">최고점: 0점</span>
+                        </div>
+                        <div class="flex items-center space-x-4 mb-3">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-400 text-white flex items-center justify-center text-3xl shadow-md">
+                                🃏
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-black text-slate-800">유물 카드 짝맞추기</h3>
+                                <p class="text-xs text-slate-500 font-bold mt-0.5">카드를 뒤집어 시대별 역사 유물 짝을 제한 시간 내에 찾으세요!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="startMemoryGame()" class="w-full mt-4 bg-indigo-500 hover:bg-indigo-600 text-white font-black py-3 rounded-2xl shadow-md active:scale-98 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>카드 게임 시작</span>
+                    </button>
+                </div>
+
+                <!-- Game Card 3: Timeline Sort -->
+                <div class="bg-white rounded-3xl border-2 border-emerald-200 p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-emerald-100 text-emerald-900 text-xs font-black px-3 py-1 rounded-full">시대 감각</span>
+                            <span class="text-xs font-black text-slate-400" id="timelineHighScore">최고점: 0점</span>
+                        </div>
+                        <div class="flex items-center space-x-4 mb-3">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center text-3xl shadow-md">
+                                ⏳
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-black text-slate-800">타임슬립! 시대 순서 정렬</h3>
+                                <p class="text-xs text-slate-500 font-bold mt-0.5">구석기부터 고려까지 일어난 사건과 유물을 오래된 순서대로 맞추세요!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="startTimelineGame()" class="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-2xl shadow-md active:scale-98 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>순서 정렬하기</span>
+                    </button>
+                </div>
+
+                <!-- Game Card 4: Speed Artifact Catch -->
+                <div class="bg-white rounded-3xl border-2 border-rose-200 p-6 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-rose-100 text-rose-900 text-xs font-black px-3 py-1 rounded-full">순발력 액션</span>
+                            <span class="text-xs font-black text-slate-400" id="catchHighScore">최고점: 0점</span>
+                        </div>
+                        <div class="flex items-center space-x-4 mb-3">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-500 to-red-400 text-white flex items-center justify-center text-3xl shadow-md">
+                                🧺
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-black text-slate-800">스피드 유물 수집가</h3>
+                                <p class="text-xs text-slate-500 font-bold mt-0.5">하늘에서 떨어진 유물만 바구니로 수집하고 쓰레기는 피하세요!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="startCatchGame()" class="w-full mt-4 bg-rose-500 hover:bg-rose-600 text-white font-black py-3 rounded-2xl shadow-md active:scale-98 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>유물 캐치 시작</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 3: ARTIFACT MUSEUM ================= -->
+        <section id="sec-museum" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">🏛️ 역사의 쓸모 보물도감</h2>
+                    <p class="text-xs text-slate-500 font-bold mt-1">게임을 하여 수집한 보물에서 우리 삶에 필요한 진짜 지혜를 배워보세요!</p>
+                </div>
+                <!-- Era Filter Buttons -->
+                <div class="flex flex-wrap gap-1.5" id="museumFilterContainer">
+                    <button onclick="filterMuseum('all', this)" class="museum-filter-btn px-3 py-1.5 rounded-xl text-xs font-black bg-amber-500 text-white shadow-sm">전체</button>
+                    <button onclick="filterMuseum('구석기·신석기', this)" class="museum-filter-btn px-3 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200">구석기·신석기</button>
+                    <button onclick="filterMuseum('청동기·고조선', this)" class="museum-filter-btn px-3 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200">청동기·고조선</button>
+                    <button onclick="filterMuseum('삼국시대·가야', this)" class="museum-filter-btn px-3 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200">삼국·가야</button>
+                    <button onclick="filterMuseum('남북국시대', this)" class="museum-filter-btn px-3 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200">남북국</button>
+                    <button onclick="filterMuseum('고려시대', this)" class="museum-filter-btn px-3 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200">고려</button>
+                </div>
+            </div>
+
+            <!-- Museum Artifact Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="museumGrid">
+                <!-- Dynamic Artifact Cards Rendered by JS -->
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 4: LEADERBOARD ================= -->
+        <section id="sec-ranking" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-3xl p-6 text-white shadow-lg flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-black">🏆 명예의 전당 (전국 랭킹)</h2>
+                    <p class="text-xs text-amber-100 font-bold mt-1">열심히 탐험하고 최고 점수를 기록하여 1위 명예를 차지하세요!</p>
+                </div>
+                <div class="text-4xl sm:text-5xl">👑</div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden">
+                <div class="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center text-xs font-black text-slate-500">
+                    <span class="w-14 text-center">순위</span>
+                    <span class="flex-1 px-4">탐험가 이름</span>
+                    <span class="w-24 text-center">획득 뱃지</span>
+                    <span class="w-28 text-right">총 탐험점수</span>
+                </div>
+
+                <div class="divide-y divide-slate-100" id="leaderboardList">
+                    <!-- Dynamic Leaderboard Rendered by JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs text-center py-6 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 space-y-2">
+            <p class="font-extrabold text-slate-200 text-sm">역사의 쓸모: 구석기부터 고려시대까지 초등 탐험대</p>
+            <p class="text-[11px] text-slate-400">대한민국 초등학교 5학년 사회/역사 교육과정을 바탕으로 제작된 스마트 학습 애플리케이션입니다.</p>
+        </div>
+    </footer>
+
+
+    <!-- ================= MODALS & ACTIVE GAME OVERLAYS ================= -->
+
+    <!-- PROFILE / NICKNAME MODAL -->
+    <div id="nicknameModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 border border-slate-100">
+            <h3 class="text-lg font-black text-slate-800 text-center">🤠 탐험가 프로필 설정</h3>
+            <div>
+                <label class="text-xs font-bold text-slate-500 block mb-1.5">아바타 선택</label>
+                <div class="grid grid-cols-4 gap-2 py-1" id="avatarSelector">
+                    <button onclick="selectAvatar('🤠')" class="avatar-opt text-2xl p-2.5 rounded-2xl border-2 border-amber-500 bg-amber-50">🤠</button>
+                    <button onclick="selectAvatar('👑')" class="avatar-opt text-2xl p-2.5 rounded-2xl border-2 border-transparent hover:bg-slate-100">👑</button>
+                    <button onclick="selectAvatar('⚔️')" class="avatar-opt text-2xl p-2.5 rounded-2xl border-2 border-transparent hover:bg-slate-100">⚔️</button>
+                    <button onclick="selectAvatar('🦁')" class="avatar-opt text-2xl p-2.5 rounded-2xl border-2 border-transparent hover:bg-slate-100">🦁</button>
+                    <button onclick="selectAvatar('🎨')" class="avatar-opt text-2xl p-2.5 rounded-2xl border-2 border-transparent hover:bg-slate-100">🎨</button>
+                    <button onclick="selectAvatar('🏹')" class="avatar-opt text-2xl p-2.5 rounded-2xl border-2 border-transparent hover:bg-slate-100">🏹</button>
+                    <button onclick="selectAvatar('📜')" class="avatar-opt text-2xl p-2.5 rounded-2xl border-2 border-transparent hover:bg-slate-100">📜</button>
+                    <button onclick="selectAvatar('🛡️')" class="avatar-opt text-2xl p-2.5 rounded-2xl border-2 border-transparent hover:bg-slate-100">🛡️</button>
+                </div>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 block mb-1">닉네임 입력 (최대 8자)</label>
+                <input type="text" id="nicknameInput" maxlength="8" class="w-full bg-slate-100 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="닉네임 입력">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeNicknameModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 rounded-xl text-sm transition">취소</button>
+                <button onclick="saveProfile()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-black py-2.5 rounded-xl text-sm transition">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- GAME 1: QUIZ KING MODAL -->
+    <div id="gameQuizModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative flex flex-col justify-between min-h-[520px]">
+            <!-- Quiz Header -->
+            <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                <div class="flex items-center space-x-3">
+                    <span class="text-3xl">👑</span>
+                    <div>
+                        <h3 class="font-black text-slate-800 text-lg">역사 퀴즈왕</h3>
+                        <span class="text-xs text-slate-400 font-bold" id="quizProgressText">문제 1 / 10</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex space-x-1 text-red-500 text-lg" id="quizLives">
+                        <i class="fa-solid fa-heart"></i>
+                        <i class="fa-solid fa-heart"></i>
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <button onclick="closeGame('quiz')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Main Body -->
+            <div class="my-auto py-4 space-y-5">
+                <div class="flex justify-between items-center text-xs font-extrabold">
+                    <span class="bg-amber-100 text-amber-900 px-3 py-1 rounded-full" id="quizComboText">0 Combo 🔥</span>
+                    <span class="text-slate-500" id="quizScoreText">현재 점수: 0점</span>
+                </div>
+
+                <div class="text-center space-y-3">
+                    <span class="inline-block bg-amber-500 text-white text-xs font-black px-3.5 py-1 rounded-full" id="quizEraTag">
+                        시대
+                    </span>
+                    <h4 class="text-lg sm:text-xl font-black text-slate-800 leading-snug px-2" id="quizQuestionText">
+                        질문을 불러오는 중...
+                    </h4>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="quizOptionsContainer">
+                    <!-- Option buttons dynamically rendered -->
+                </div>
+
+                <!-- Life Lesson Explanation Box -->
+                <div id="quizExplanationBox" class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 font-medium">
+                    <span class="font-extrabold text-amber-900 block mb-1" id="quizResultStatus">💡 역사의 쓸모 해설</span>
+                    <p id="quizExplanationText" class="leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Footer Next -->
+            <div class="pt-4 border-t border-slate-100 flex justify-end">
+                <button id="quizNextBtn" onclick="nextQuizQuestion()" class="hidden bg-amber-500 hover:bg-amber-600 text-white font-black px-6 py-2.5 rounded-xl shadow-md transition flex items-center space-x-2">
+                    <span>다음 문제</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- GAME 2: MEMORY FLIP MODAL -->
+    <div id="gameMemoryModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative flex flex-col justify-between">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
+                <div class="flex items-center space-x-3">
+                    <span class="text-3xl">🃏</span>
+                    <div>
+                        <h3 class="font-black text-slate-800 text-lg">유물 카드 짝맞추기</h3>
+                        <span class="text-xs text-slate-400 font-bold" id="memoryMovesText">시도 횟수: 0회</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-indigo-100 text-indigo-900 text-xs font-black px-3 py-1 rounded-full" id="memoryTimerText">남은시간: 60초</span>
+                    <button onclick="closeGame('memory')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 my-auto" id="memoryGrid">
+                <!-- 12 Cards dynamically rendered -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- GAME 3: TIMELINE SORT MODAL -->
+    <div id="gameTimelineModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative flex flex-col justify-between min-h-[500px]">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
+                <div class="flex items-center space-x-3">
+                    <span class="text-3xl">⏳</span>
+                    <div>
+                        <h3 class="font-black text-slate-800 text-lg">타임슬립! 시대 순서 정렬</h3>
+                        <span class="text-xs text-slate-400 font-bold">오래된 시대 순서대로 (1번~6번) 위치시키세요!</span>
+                    </div>
+                </div>
+                <button onclick="closeGame('timeline')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-2.5 my-auto" id="timelineList">
+                <!-- Dynamic Sort List -->
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <span class="text-xs font-bold text-slate-400">카드를 터치해 선택 후 다른 카드를 터치하여 교환하세요.</span>
+                <button onclick="checkTimelineAnswer()" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white font-black px-6 py-2.5 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-check"></i>
+                    <span>순서 제출 및 검사</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- GAME 4: SPEED CATCH CANVAS MODAL -->
+    <div id="gameCatchModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl relative flex flex-col items-center">
+            <div class="w-full flex justify-between items-center border-b border-slate-100 pb-3 mb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">🧺</span>
+                    <h3 class="font-black text-slate-800 text-lg">스피드 유물 수집가</h3>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs bg-rose-100 text-rose-900 font-black px-2.5 py-1 rounded-full" id="catchTimeText">시간: 30s</span>
+                    <span class="text-xs bg-amber-100 text-amber-900 font-black px-2.5 py-1 rounded-full" id="catchScoreText">점수: 0점</span>
+                    <button onclick="closeGame('catch')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative w-full max-w-[420px] aspect-[4/5] bg-gradient-to-b from-sky-100 via-amber-50 to-orange-100 rounded-2xl overflow-hidden shadow-inner border border-amber-200">
+                <canvas id="catchCanvas" class="w-full h-full block cursor-pointer"></canvas>
+
+                <!-- Touch Control Buttons -->
+                <div class="absolute bottom-3 left-0 right-0 flex justify-between px-4 opacity-80">
+                    <button id="btnLeft" class="w-14 h-14 bg-slate-800/70 active:bg-slate-900 text-white text-2xl rounded-2xl flex items-center justify-center backdrop-blur-sm select-none">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button id="btnRight" class="w-14 h-14 bg-slate-800/70 active:bg-slate-900 text-white text-2xl rounded-2xl flex items-center justify-center backdrop-blur-sm select-none">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="text-[11px] font-bold text-slate-400 mt-2">화살표키, 터치 버튼 또는 마우스 드래그로 바구니를 이동하세요!</p>
+        </div>
+    </div>
+
+
+    <!-- RESULT MODAL -->
+    <div id="resultModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center space-y-4 animate-float border border-amber-200">
+            <div class="text-6xl" id="resultEmoji">🎉</div>
+            <h3 class="text-2xl font-black text-slate-800" id="resultTitle">탐험 완료!</h3>
+            <p class="text-xs font-bold text-slate-600" id="resultDesc">훌륭한 역사 실력을 보여주셨네요!</p>
+            
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2">
+                <div class="flex justify-between text-xs font-bold text-amber-900">
+                    <span>획득 점수</span>
+                    <span class="text-base font-black text-amber-600" id="resultScore">+0 점</span>
+                </div>
+                <div class="flex justify-between text-xs font-bold text-amber-900">
+                    <span>누적 총 점수</span>
+                    <span class="font-black text-slate-800" id="resultTotalScore">0 점</span>
+                </div>
+            </div>
+
+            <button onclick="closeResultModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-black py-3 rounded-2xl shadow-md transition">
+                확인 및 메인으로
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ================= JAVASCRIPT APP ENGINE ================= -->
+    <script>
+        /* ==========================================================================
+           1. DATA STRUCTURES & KNOWLEDGE BASE (5th Grade Korean History Curriculum)
+           ========================================================================== */
+
+        const ARTIFACTS_DATA = [
+            {
+                id: "art1",
+                name: "주먹도끼",
+                era: "구석기·신석기",
+                icon: "🦴",
+                desc: "구석기 시대 사람들이 돌을 깨뜨려 다목적으로 사용한 뗀석기입니다.",
+                wisdomTitle: "생각의 힘으로 만드는 도구",
+                wisdom: "주먹도끼는 인간이 지혜를 내어 만든 최초의 창의적 도구입니다. 막막한 문제도 생각을 조금만 바꾸면 쉽게 해결할 수 있습니다."
+            },
+            {
+                id: "art2",
+                name: "빗살무늬 토기",
+                era: "구석기·신석기",
+                icon: "🏺",
+                desc: "신석기 시대 농경과 정착생활이 시작되면서 음식을 담고 저장하기 위해 만든 토기입니다.",
+                wisdomTitle: "미래를 준비하는 저장의 지혜",
+                wisdom: "정착 생활을 하며 내일을 위해 음식을 보관하기 시작했습니다. 오늘 할 일을 차근차근 준비하는 계획 습관을 길러보세요."
+            },
+            {
+                id: "art3",
+                name: "고인돌",
+                era: "청동기·고조선",
+                icon: "🪨",
+                desc: "청동기 시대 족장의 강한 권력을 나타내는 거대한 돌무덤입니다.",
+                wisdomTitle: "협동과 단결의 리더십",
+                wisdom: "무거운 돌을 옮기려면 수많은 사람들의 협동이 필수였습니다. 혼자보다 여럿이 마음을 모을 때 커다란 일도 해낼 수 있습니다."
+            },
+            {
+                id: "art4",
+                name: "비파형 동검",
+                era: "청동기·고조선",
+                icon: "🗡️",
+                desc: "고조선의 고유한 문화 범위를 알려주는 비파 모양 청동 무기입니다.",
+                wisdomTitle: "나만의 독창적인 개성",
+                wisdom: "다른 나라와 차별화된 고조선만의 형태를 가졌습니다. 남을 무조건 따라 하기보다 나만의 독특한 매력과 장점을 키우세요."
+            },
+            {
+                id: "art5",
+                name: "광개토대왕릉비",
+                era: "삼국시대·가야",
+                icon: "🗿",
+                desc: "고구려의 광대한 영토 개척 업적을 기리기 위해 장수왕이 세운 비석입니다.",
+                wisdomTitle: "원대한 꿈을 향한 호연지기",
+                wisdom: "북방의 광활한 영토를 개척했던 자신감처럼, 더 넓은 세상을 바라보며 원대한 목표에 도전해 보세요."
+            },
+            {
+                id: "art6",
+                name: "신라 금관 & 화랑도",
+                era: "삼국시대·가야",
+                icon: "👑",
+                desc: "신라의 뛰어난 금속 공예 기술과 화랑도의 정신이 서린 보물입니다.",
+                wisdomTitle: "서로 존중하는 화합의 정신",
+                wisdom: "화랑도는 학문과 무술을 닦으며 우정을 나누었습니다. 친구와 서로 격려하며 함께 성장하는 협동심을 배워보세요."
+            },
+            {
+                id: "art7",
+                name: "석굴암 본존불",
+                era: "남북국시대",
+                icon: "🏛️",
+                desc: "통일신라 시대 수학, 건축, 예술의 결정체인 석굴 사원입니다.",
+                wisdomTitle: "정성을 다하는 장인 정신",
+                wisdom: "돌 하나하나의 정교한 계산과 정성으로 완성되었습니다. 어떤 일이든 진심과 온 힘을 기울일 때 최고의 결과가 나옵니다."
+            },
+            {
+                id: "art8",
+                name: "발해 해동성국 유산",
+                era: "남북국시대",
+                icon: "📜",
+                desc: "고구려를 계승하여 동쪽의 번성한 나라라 불린 발해의 기상입니다.",
+                wisdomTitle: "시련을 이겨내는 불굴의 의지",
+                wisdom: "고구려가 무너진 후에도 절망하지 않고 당당히 국가를 재건했습니다. 실패를 겪어도 다시 일어서는 칠전팔기의 마음을 가집니다."
+            },
+            {
+                id: "art9",
+                name: "고려 서희의 외교담판",
+                era: "고려시대",
+                icon: "🗣️",
+                desc: "거란 80만 대군에 맞서 논리적인 대화로 강동 6주를 되찾은 사건입니다.",
+                wisdomTitle: "싸우지 않고 이기는 대화의 힘",
+                wisdom: "무력이 아닌 정확한 명분과 소통으로 위기를 기회로 만들었습니다. 친구와의 갈등도 화 대신 대화로 해결해 보세요."
+            },
+            {
+                id: "art10",
+                name: "고려청자",
+                era: "고려시대",
+                icon: "💎",
+                desc: "은은한 비색과 상감 기법으로 세계의 찬사를 받은 고려의 오리지널 도자기입니다.",
+                wisdomTitle: "세계를 감동시킨 창의성",
+                wisdom: "자기 몸을 파내어 흙을 채우는 상감 기법으로 독창적 아름다움을 발휘했습니다. 나만의 독창성을 당당히 표현하세요."
+            }
+        ];
+
+        const QUIZ_QUESTIONS = [
+            {
+                era: "구석기 시대",
+                q: "구석기 시대 사람들이 동물 가죽을 벗기거나 나무를 깎을 때 돌을 깨뜨려 만든 도구는?",
+                options: ["주먹도끼", "빗살무늬토기", "고려청자", "조선백자"],
+                ans: 0,
+                exp: "주먹도끼는 구석기 시대를 대표하는 만능 뗀석기입니다."
+            },
+            {
+                era: "신석기 시대",
+                q: "신석기 시대에 농경이 시작되면서 음식을 조리하고 식량을 보관하기 위해 만든 토기는?",
+                options: ["미송리식 토기", "빗살무늬 토기", "고려청자", "순백자"],
+                ans: 1,
+                exp: "빗살무늬 토기는 신석기 시대의 정착 생활과 농경을 보여주는 대표 유물입니다."
+            },
+            {
+                era: "청동기 시대",
+                q: "우리 역사상 최초의 국가인 고조선을 건국한 인물은 누구일까요?",
+                options: ["주몽", "온조", "단군왕검", "박혁거세"],
+                ans: 2,
+                exp: "단군왕검은 '널리 인간을 이롭게 한다(홍익인간)'는 뜻으로 고조선을 세웠습니다."
+            },
+            {
+                era: "청동기 시대",
+                q: "청동기 시대 족장의 권력을 symbol로 나타내는 거대한 돌무덤은?",
+                options: ["고인돌", "무령왕릉", "석굴암", "첨성대"],
+                ans: 0,
+                exp: "고인돌은 수많은 사람의 협동과 족장의 권력을 증명하는 유적입니다."
+            },
+            {
+                era: "삼국 시대",
+                q: "고구려의 영토를 북쪽 만주 벌판까지 크게 넓힌 고구려의 위대한 왕은?",
+                options: ["광개토대왕", "근초고왕", "진흥왕", "의자왕"],
+                ans: 0,
+                exp: "광개토대왕은 영토를 대대적으로 확장하여 고구려의 기상을 드높였습니다."
+            },
+            {
+                era: "삼국 시대",
+                q: "신라에서 청소년들이 학문과 무술을 익히고 삼국 통일의 밑거름이 된 단체는?",
+                options: ["화랑도", "삼별초", "별기군", "규장각"],
+                ans: 0,
+                exp: "화랑도는 조화와 협동 정신으로 신라의 인재를 양성했습니다."
+            },
+            {
+                era: "남북국 시대",
+                q: "통일신라 시대 김대성이 완성한, 세계적인 수학과 조각 기법이 결합된 석굴 사원은?",
+                options: ["석굴암", "첨성대", "황룡사", "미륵사"],
+                ans: 0,
+                exp: "석굴암은 지혜와 정성이 정교하게 담긴 세계문화유산입니다."
+            },
+            {
+                era: "남북국 시대",
+                q: "고구려가 무너진 후 그 기상을 이어받아 대조영이 건국한 나라의 이름은?",
+                options: ["발해", "백제", "가야", "후고구려"],
+                ans: 0,
+                exp: "발해는 고구려의 유민들이 세워 '해동성국'이라 불리며 번창했습니다."
+            },
+            {
+                era: "고려 시대",
+                q: "거란의 침입 때 당당한 논리와 소통으로 싸우지 않고 강동 6주를 되찾은 고려의 외교관은?",
+                options: ["서희", "강감찬", "윤관", "최무선"],
+                ans: 0,
+                exp: "서희 장군은 뛰어난 말재주와 논리적 대화로 거란을 물러나게 했습니다."
+            },
+            {
+                era: "고려 시대",
+                q: "고려 시대에 독자적인 상감 기법과 은은한 비색으로 세계에 명성을 떨친 도 자기는?",
+                options: ["고려청자", "조선백자", "토기", "분청사기"],
+                ans: 0,
+                exp: "고려청자는 고려인들의 높은 예술성과 창의성을 입증하는 국보급 유물입니다."
+            }
+        ];
+
+        const TIMELINE_SET = [
+            { id: 1, name: "🦴 구석기시대 (주먹도끼 사용)", order: 1 },
+            { id: 2, name: "🏺 신석기시대 (농경 시작 · 빗살무늬토기)", order: 2 },
+            { id: 3, name: "🪨 청동기시대 (고조선 건국 · 고인돌)", order: 3 },
+            { id: 4, name: "⚔️ 삼국시대 (고구려·백제·신라 전성기)", order: 4 },
+            { id: 5, name: "🏛️ 남북국시대 (통일신라 석굴암 & 발해)", order: 5 },
+            { id: 6, name: "🏺 고려시대 (서희 외교담판 & 고려청자)", order: 6 }
+        ];
+
+        const BADGES_DATA = [
+            { id: 'b1', name: '역사 입문자', icon: '🐣', condition: '첫 게임 플레이' },
+            { id: 'b2', name: '퀴즈 달인', icon: '👑', condition: '퀴즈 300점 이상' },
+            { id: 'b3', name: '기억력 대장', icon: '🃏', condition: '카드 짝맞추기 승리' },
+            { id: 'b4', name: '타임 마스터', icon: '⏳', condition: '시대 순서 정렬 완료' },
+            { id: 'b5', name: '역사 박사', icon: '🎓', condition: '총점 1,000점 돌파' }
+        ];
+
+        const DAILY_WISDOMS = [
+            {
+                title: "고려 서희 장군의 담판",
+                desc: "싸우지 않고 소통하는 말 한마디가 백만 대군보다 강력합니다. 친구와의 갈등도 화 대신 논리적인 대화로 풀어보세요!",
+                tag: "#소통 #외교 #지혜"
+            },
+            {
+                title: "구석기 주먹도끼의 창의성",
+                desc: "처음에는 단순한 돌이었지만 생각을 다듬어 최고의 만능 도구가 되었습니다. 내 장점도 연습으로 빛날 수 있습니다!",
+                tag: "#창의성 #도전 #연습"
+            },
+            {
+                title: "신석기 빗살무늬토기의 계획성",
+                desc: "내일을 위해 음식을 보관하듯, 오늘 공부와 할 일을 미리 계획해두면 마음이 여유로워집니다.",
+                tag: "#계획 #저축 #준비"
+            },
+            {
+                title: "청동기 고인돌의 협동심",
+                desc: "거대한 돌을 혼자 들 수는 없지만 마음을 모으면 얼마든지 옮길 수 있습니다. 모둠 활동에서 협동해 보세요!",
+                tag: "#협동 #배려 #우정"
+            }
+        ];
+
+        /* ==========================================================================
+           2. APP STATE & LOCAL STORAGE
+           ========================================================================== */
+
+        let state = {
+            nickname: '역사탐험가',
+            avatar: '🤠',
+            totalScore: 0,
+            soundOn: true,
+            highScores: { quiz: 0, memory: 0, timeline: 0, catch: 0 },
+            unlockedArtifacts: ['art1', 'art2'],
+            earnedBadges: ['b1'],
+            leaderboard: [
+                { rank: 1, avatar: '👑', name: '역사왕철수', badges: 5, score: 2800 },
+                { rank: 2, avatar: '⚔️', name: '화랑민우', badges: 4, score: 2100 },
+                { rank: 3, avatar: '🦁', name: '세종대왕팬', badges: 3, score: 1650 },
+                { rank: 4, avatar: '🎨', name: '청자마니아', badges: 2, score: 1200 }
+            ]
+        };
+
+        // Web Audio API Synth Engine
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type = 'sine', duration = 0.15) {
+            if (!state.soundOn) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function playSoundEffect(type) {
+            if (!state.soundOn) return;
+            if (type === 'correct') {
+                playTone(523.25, 'triangle', 0.1);
+                setTimeout(() => playTone(659.25, 'triangle', 0.15), 100);
+                setTimeout(() => playTone(783.99, 'triangle', 0.2), 200);
+            } else if (type === 'wrong') {
+                playTone(220, 'sawtooth', 0.15);
+                setTimeout(() => playTone(185, 'sawtooth', 0.25), 120);
+            } else if (type === 'flip') {
+                playTone(450, 'sine', 0.05);
+            } else if (type === 'fanfare') {
+                [523, 659, 783, 1046].forEach((f, i) => {
+                    setTimeout(() => playTone(f, 'square', 0.2), i * 120);
+                });
+            }
+        }
+
+        function toggleSound() {
+            state.soundOn = !state.soundOn;
+            const icon = document.getElementById('soundIcon');
+            if (state.soundOn) {
+                icon.className = "fa-solid fa-volume-high text-sm";
+                playTone(600, 'sine', 0.1);
+            } else {
+                icon.className = "fa-solid fa-volume-xmark text-sm";
+            }
+            saveLocalStorage();
+        }
+
+        /* ==========================================================================
+           3. LIFECYCLE & USER PROFILE
+           ========================================================================== */
+
+        window.onload = function () {
+            loadLocalStorage();
+            updateUI();
+            renderBadges();
+            renderMuseum();
+            renderLeaderboard();
+
+            // Resume audio on any touch/click
+            document.body.addEventListener('touchstart', initAudio, { once: true });
+            document.body.addEventListener('click', initAudio, { once: true });
+        };
+
+        function loadLocalStorage() {
+            const saved = localStorage.getItem('history_expedition_state_v2');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state = { ...state, ...parsed };
+                } catch (e) {}
+            }
+        }
+
+        function saveLocalStorage() {
+            localStorage.setItem('history_expedition_state_v2', JSON.stringify(state));
+        }
+
+        function updateUI() {
+            document.getElementById('headerScore').innerText = `${state.totalScore.toLocaleString()} 점`;
+            document.getElementById('headerName').innerText = state.nickname;
+            document.getElementById('headerAvatar').innerText = state.avatar;
+
+            document.getElementById('quizHighScore').innerText = `최고점: ${state.highScores.quiz}점`;
+            document.getElementById('memoryHighScore').innerText = `최고점: ${state.highScores.memory}점`;
+            document.getElementById('timelineHighScore').innerText = `최고점: ${state.highScores.timeline}점`;
+            document.getElementById('catchHighScore').innerText = `최고점: ${state.highScores.catch}점`;
+
+            checkBadgeUnlocks();
+        }
+
+        function addScore(points) {
+            state.totalScore += points;
+            updateUI();
+            saveLocalStorage();
+            if (points > 0 && typeof confetti === 'function') {
+                confetti({ particleCount: 45, spread: 60, origin: { y: 0.7 } });
+            }
+        }
+
+        function rotateDailyWisdom() {
+            playSoundEffect('flip');
+            const rand = DAILY_WISDOMS[Math.floor(Math.random() * DAILY_WISDOMS.length)];
+            document.getElementById('dailyTipTitle').innerText = rand.title;
+            document.getElementById('dailyTipDesc').innerText = rand.desc;
+            document.getElementById('dailyTipTag').innerText = rand.tag;
+        }
+
+        /* ==========================================================================
+           4. NAVIGATION & MODALS
+           ========================================================================== */
+
+        function switchTab(tab) {
+            playSoundEffect('flip');
+            ['home', 'games', 'museum', 'ranking'].forEach(t => {
+                document.getElementById(`sec-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-${t}`);
+                if (btn) {
+                    btn.classList.remove('border-white', 'font-black', 'text-amber-950', 'bg-white/20');
+                    btn.classList.add('border-transparent');
+                }
+            });
+
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent');
+                activeBtn.classList.add('border-white', 'font-black', 'text-amber-950', 'bg-white/20');
+            }
+
+            if (tab === 'museum') renderMuseum();
+            if (tab === 'ranking') renderLeaderboard();
+        }
+
+        function openNicknameModal() {
+            document.getElementById('nicknameInput').value = state.nickname;
+            document.getElementById('nicknameModal').classList.remove('hidden');
+        }
+
+        function closeNicknameModal() {
+            document.getElementById('nicknameModal').classList.add('hidden');
+        }
+
+        function selectAvatar(emoji) {
+            state.avatar = emoji;
+            document.querySelectorAll('.avatar-opt').forEach(btn => {
+                btn.classList.remove('border-amber-500', 'bg-amber-50');
+                btn.classList.add('border-transparent');
+                if (btn.innerText.trim() === emoji) {
+                    btn.classList.add('border-amber-500', 'bg-amber-50');
+                }
+            });
+        }
+
+        function saveProfile() {
+            const val = document.getElementById('nicknameInput').value.trim();
+            if (val) state.nickname = val;
+            closeNicknameModal();
+            updateUI();
+            saveLocalStorage();
+            playSoundEffect('correct');
+        }
+
+        function showResult(title, desc, score) {
+            playSoundEffect('fanfare');
+            document.getElementById('resultTitle').innerText = title;
+            document.getElementById('resultDesc').innerText = desc;
+            document.getElementById('resultScore').innerText = `+${score} 점`;
+            document.getElementById('resultTotalScore').innerText = `${state.totalScore.toLocaleString()} 점`;
+            document.getElementById('resultModal').classList.remove('hidden');
+            updateLeaderboardSelf();
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+        /* ==========================================================================
+           5. GAME 1: QUIZ KING LOGIC
+           ========================================================================== */
+
+        let quizState = {
+            currentIndex: 0,
+            score: 0,
+            combo: 0,
+            lives: 3,
+            questions: []
+        };
+
+        function startQuizGame() {
+            playSoundEffect('flip');
+            quizState.currentIndex = 0;
+            quizState.score = 0;
+            quizState.combo = 0;
+            quizState.lives = 3;
+            quizState.questions = [...QUIZ_QUESTIONS].sort(() => Math.random() - 0.5);
+
+            document.getElementById('gameQuizModal').classList.remove('hidden');
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const q = quizState.questions[quizState.currentIndex];
+            document.getElementById('quizProgressText').innerText = `문제 ${quizState.currentIndex + 1} / ${quizState.questions.length}`;
+            document.getElementById('quizEraTag').innerText = q.era;
+            document.getElementById('quizQuestionText').innerText = q.q;
+            document.getElementById('quizComboText').innerText = `${quizState.combo} Combo 🔥`;
+            document.getElementById('quizScoreText').innerText = `현재 점수: ${quizState.score}점`;
+
+            let heartsHtml = '';
+            for (let i = 0; i < 3; i++) {
+                heartsHtml += i < quizState.lives 
+                    ? '<i class="fa-solid fa-heart text-red-500"></i>' 
+                    : '<i class="fa-regular fa-heart text-slate-300"></i>';
+            }
+            document.getElementById('quizLives').innerHTML = heartsHtml;
+
+            document.getElementById('quizExplanationBox').classList.add('hidden');
+            document.getElementById('quizNextBtn').classList.add('hidden');
+
+            const optsContainer = document.getElementById('quizOptionsContainer');
+            optsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "quiz-opt-btn bg-slate-50 hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-400 font-bold text-slate-800 p-4 rounded-2xl text-sm text-left transition flex items-center justify-between";
+                btn.innerHTML = `<span>${idx + 1}. ${opt}</span><i class="fa-solid fa-circle-check text-amber-500 opacity-0"></i>`;
+                btn.onclick = () => checkQuizAnswer(idx, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedIdx, btnElement) {
+            const q = quizState.questions[quizState.currentIndex];
+            const allBtns = document.querySelectorAll('.quiz-opt-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selectedIdx === q.ans) {
+                playSoundEffect('correct');
+                btnElement.className = "quiz-opt-btn bg-emerald-100 border-2 border-emerald-500 font-bold text-emerald-950 p-4 rounded-2xl text-sm text-left flex items-center justify-between";
+                
+                quizState.combo++;
+                const bonus = quizState.combo * 20;
+                const pointsEarned = 100 + bonus;
+                quizState.score += pointsEarned;
+
+                document.getElementById('quizResultStatus').innerText = `⭕ 정답입니다! (+${pointsEarned}점)`;
+                document.getElementById('quizExplanationBox').className = "p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 font-medium";
+
+                unlockRandomArtifact();
+            } else {
+                playSoundEffect('wrong');
+                btnElement.className = "quiz-opt-btn bg-rose-100 border-2 border-rose-500 font-bold text-rose-950 p-4 rounded-2xl text-sm text-left flex items-center justify-between";
+                
+                allBtns[q.ans].className = "quiz-opt-btn bg-emerald-100 border-2 border-emerald-500 font-bold text-emerald-950 p-4 rounded-2xl text-sm text-left flex items-center justify-between";
+
+                quizState.combo = 0;
+                quizState.lives--;
+
+                document.getElementById('quizResultStatus').innerText = "❌ 아쉽네요! 정답을 확인하세요.";
+                document.getElementById('quizExplanationBox').className = "p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-950 font-medium";
+            }
+
+            document.getElementById('quizExplanationText').innerText = q.exp;
+            document.getElementById('quizExplanationBox').classList.remove('hidden');
+            document.getElementById('quizNextBtn').classList.remove('hidden');
+
+            document.getElementById('quizComboText').innerText = `${quizState.combo} Combo 🔥`;
+            document.getElementById('quizScoreText').innerText = `현재 점수: ${quizState.score}점`;
+        }
+
+        function nextQuizQuestion() {
+            quizState.currentIndex++;
+            if (quizState.lives <= 0 || quizState.currentIndex >= quizState.questions.length) {
+                closeGame('quiz');
+                if (quizState.score > state.highScores.quiz) {
+                    state.highScores.quiz = quizState.score;
+                }
+                addScore(quizState.score);
+                showResult("퀴즈 완료!", `총 ${quizState.score}점을 획득했습니다!`, quizState.score);
+            } else {
+                renderQuizQuestion();
+            }
+        }
+
+        /* ==========================================================================
+           6. GAME 2: ARTIFACT MEMORY FLIP LOGIC
+           ========================================================================== */
+
+        let memoryState = {
+            cards: [],
+            flipped: [],
+            matchedPairs: 0,
+            moves: 0,
+            timer: null,
+            timeLeft: 60
+        };
+
+        function startMemoryGame() {
+            playSoundEffect('flip');
+            document.getElementById('gameMemoryModal').classList.remove('hidden');
+
+            const chosen = [...ARTIFACTS_DATA].sort(() => Math.random() - 0.5).slice(0, 6);
+            let pairs = [];
+            chosen.forEach(item => {
+                pairs.push({ ...item, instanceId: Math.random() });
+                pairs.push({ ...item, instanceId: Math.random() });
+            });
+            memoryState.cards = pairs.sort(() => Math.random() - 0.5);
+            memoryState.flipped = [];
+            memoryState.matchedPairs = 0;
+            memoryState.moves = 0;
+            memoryState.timeLeft = 60;
+
+            document.getElementById('memoryMovesText').innerText = "시도 횟수: 0회";
+            document.getElementById('memoryTimerText').innerText = "남은시간: 60초";
+
+            clearInterval(memoryState.timer);
+            memoryState.timer = setInterval(() => {
+                memoryState.timeLeft--;
+                document.getElementById('memoryTimerText').innerText = `남은시간: ${memoryState.timeLeft}초`;
+                if (memoryState.timeLeft <= 0) {
+                    clearInterval(memoryState.timer);
+                    closeGame('memory');
+                    showResult("시간 초과!", "제한 시간이 종료되었습니다.", 0);
+                }
+            }, 1000);
+
+            renderMemoryGrid();
+        }
+
+        function renderMemoryGrid() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            memoryState.cards.forEach((card, idx) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = "aspect-square cursor-pointer perspective-1000 select-none";
+                cardEl.innerHTML = `
+                    <div id="mcard-${idx}" class="w-full h-full relative transform-style-3d transition-transform duration-300 rounded-2xl shadow-sm border-2 border-indigo-200 bg-indigo-50 flex flex-col items-center justify-center p-2 text-center">
+                        <div class="card-front absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-inner">
+                            ❓
+                        </div>
+                        <div class="card-back absolute inset-0 bg-white rounded-2xl flex flex-col items-center justify-center p-2 text-center backface-hidden rotate-y-180">
+                            <span class="text-3xl mb-1">${card.icon}</span>
+                            <span class="text-xs font-black text-slate-800 leading-tight">${card.name}</span>
+                            <span class="text-[10px] text-indigo-600 font-bold mt-1">${card.era}</span>
+                        </div>
+                    </div>
+                `;
+                cardEl.onclick = () => flipMemoryCard(idx);
+                grid.appendChild(cardEl);
+            });
+        }
+
+        function flipMemoryCard(idx) {
+            if (memoryState.flipped.length >= 2 || memoryState.flipped.includes(idx)) return;
+
+            playSoundEffect('flip');
+            document.getElementById(`mcard-${idx}`).classList.add('rotate-y-180');
+            memoryState.flipped.push(idx);
+
+            if (memoryState.flipped.length === 2) {
+                memoryState.moves++;
+                document.getElementById('memoryMovesText').innerText = `시도 횟수: ${memoryState.moves}회`;
+
+                const [idx1, idx2] = memoryState.flipped;
+                const c1 = memoryState.cards[idx1];
+                const c2 = memoryState.cards[idx2];
+
+                if (c1.id === c2.id) {
+                    playSoundEffect('correct');
+                    memoryState.matchedPairs++;
+                    memoryState.flipped = [];
+                    unlockArtifactById(c1.id);
+
+                    if (memoryState.matchedPairs === 6) {
+                        clearInterval(memoryState.timer);
+                        setTimeout(() => {
+                            closeGame('memory');
+                            const earned = Math.max(150, 400 - (memoryState.moves * 10) + (memoryState.timeLeft * 5));
+                            if (earned > state.highScores.memory) state.highScores.memory = earned;
+                            addScore(earned);
+                            showResult("짝맞추기 완승!", `${memoryState.moves}회 시도로 모든 카드를 맞췄습니다!`, earned);
+                        }, 500);
+                    }
+                } else {
+                    playSoundEffect('wrong');
+                    setTimeout(() => {
+                        document.getElementById(`mcard-${idx1}`)?.classList.remove('rotate-y-180');
+                        document.getElementById(`mcard-${idx2}`)?.classList.remove('rotate-y-180');
+                        memoryState.flipped = [];
+                    }, 800);
+                }
+            }
+        }
+
+        /* ==========================================================================
+           7. GAME 3: TIMELINE SORT LOGIC
+           ========================================================================== */
+
+        let timelineState = {
+            currentItems: [],
+            selectedIdx: null
+        };
+
+        function startTimelineGame() {
+            playSoundEffect('flip');
+            document.getElementById('gameTimelineModal').classList.remove('hidden');
+            timelineState.currentItems = [...TIMELINE_SET].sort(() => Math.random() - 0.5);
+            timelineState.selectedIdx = null;
+            renderTimelineList();
+        }
+
+        function renderTimelineList() {
+            const list = document.getElementById('timelineList');
+            list.innerHTML = '';
+
+            timelineState.currentItems.forEach((item, idx) => {
+                const isSelected = timelineState.selectedIdx === idx;
+                const row = document.createElement('div');
+                row.className = `p-3.5 rounded-2xl border-2 font-bold text-sm flex items-center justify-between cursor-pointer transition transform ${
+                    isSelected 
+                        ? 'border-emerald-500 bg-emerald-50 scale-[1.01] shadow-md' 
+                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800'
+                }`;
+
+                row.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-xl bg-emerald-500 text-white text-xs font-black flex items-center justify-center">${idx + 1}</span>
+                        <span class="font-black text-xs sm:text-sm">${item.name}</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs">
+                        <button onclick="event.stopPropagation(); moveTimelineItem(${idx}, -1)" class="w-7 h-7 bg-slate-200 hover:bg-slate-300 rounded-lg text-slate-700 font-black" title="위로">▲</button>
+                        <button onclick="event.stopPropagation(); moveTimelineItem(${idx}, 1)" class="w-7 h-7 bg-slate-200 hover:bg-slate-300 rounded-lg text-slate-700 font-black" title="아래로">▼</button>
+                    </div>
+                `;
+
+                row.onclick = () => handleTimelineClick(idx);
+                list.appendChild(row);
+            });
+        }
+
+        function handleTimelineClick(idx) {
+            playSoundEffect('flip');
+            if (timelineState.selectedIdx === null) {
+                timelineState.selectedIdx = idx;
+            } else {
+                const temp = timelineState.currentItems[timelineState.selectedIdx];
+                timelineState.currentItems[timelineState.selectedIdx] = timelineState.currentItems[idx];
+                timelineState.currentItems[idx] = temp;
+                timelineState.selectedIdx = null;
+            }
+            renderTimelineList();
+        }
+
+        function moveTimelineItem(idx, dir) {
+            playSoundEffect('flip');
+            const target = idx + dir;
+            if (target >= 0 && target < timelineState.currentItems.length) {
+                const temp = timelineState.currentItems[idx];
+                timelineState.currentItems[idx] = timelineState.currentItems[target];
+                timelineState.currentItems[target] = temp;
+                renderTimelineList();
+            }
+        }
+
+        function checkTimelineAnswer() {
+            let isCorrect = true;
+            for (let i = 0; i < timelineState.currentItems.length - 1; i++) {
+                if (timelineState.currentItems[i].order > timelineState.currentItems[i + 1].order) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                playSoundEffect('correct');
+                closeGame('timeline');
+                const score = 350;
+                if (score > state.highScores.timeline) state.highScores.timeline = score;
+                addScore(score);
+                showResult("시대 정렬 성공!", "구석기부터 고려시대까지의 순서를 정확하게 완성했습니다!", score);
+            } else {
+                playSoundEffect('wrong');
+                alert("시대 순서가 일부 틀렸어요! 오래된 구석기부터 순서대로 다시 정해보세요.");
+            }
+        }
+
+        /* ==========================================================================
+           8. GAME 4: SPEED CATCH (HTML5 CANVAS GAME)
+           ========================================================================== */
+
+        let catchState = {
+            animId: null,
+            canvas: null,
+            ctx: null,
+            basket: { x: 160, y: 440, w: 80, h: 22 },
+            items: [],
+            score: 0,
+            timeLeft: 30,
+            timer: null
+        };
+
+        const CATCH_GOOD = [
+            { icon: '🦴', name: '주먹도끼', pts: 100 },
+            { icon: '🏺', name: '빗살무늬토기', pts: 100 },
+            { icon: '🗡️', name: '비파형동검', pts: 150 },
+            { icon: '👑', name: '신라금관', pts: 150 },
+            { icon: '💎', name: '고려청자', pts: 200 }
+        ];
+
+        const CATCH_BAD = [
+            { icon: '🥤', name: '플라스틱컵', pts: -100 },
+            { icon: '📱', name: '스마트폰', pts: -100 },
+            { icon: '💀', name: '위험물', pts: -150 }
+        ];
+
+        function startCatchGame() {
+            playSoundEffect('flip');
+            document.getElementById('gameCatchModal').classList.remove('hidden');
+
+            catchState.canvas = document.getElementById('catchCanvas');
+            catchState.ctx = catchState.canvas.getContext('2d');
+            
+            catchState.canvas.width = 400;
+            catchState.canvas.height = 500;
+            catchState.basket.x = 160;
+            catchState.basket.y = 440;
+
+            catchState.items = [];
+            catchState.score = 0;
+            catchState.timeLeft = 30;
+
+            document.getElementById('catchTimeText').innerText = `시간: 30s`;
+            document.getElementById('catchScoreText').innerText = `점수: 0점`;
+
+            // Canvas Mouse & Touch
+            catchState.canvas.onmousemove = (e) => {
+                const rect = catchState.canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) * (catchState.canvas.width / rect.width);
+                catchState.basket.x = Math.max(0, Math.min(catchState.canvas.width - catchState.basket.w, mouseX - catchState.basket.w / 2));
+            };
+
+            catchState.canvas.ontouchmove = (e) => {
+                if (e.touches.length > 0) {
+                    const rect = catchState.canvas.getBoundingClientRect();
+                    const touchX = (e.touches[0].clientX - rect.left) * (catchState.canvas.width / rect.width);
+                    catchState.basket.x = Math.max(0, Math.min(catchState.canvas.width - catchState.basket.w, touchX - catchState.basket.w / 2));
+                }
+            };
+
+            document.getElementById('btnLeft').onclick = () => {
+                catchState.basket.x = Math.max(0, catchState.basket.x - 35);
+            };
+            document.getElementById('btnRight').onclick = () => {
+                catchState.basket.x = Math.min(catchState.canvas.width - catchState.basket.w, catchState.basket.x + 35);
+            };
+
+            clearInterval(catchState.timer);
+            catchState.timer = setInterval(() => {
+                catchState.timeLeft--;
+                document.getElementById('catchTimeText').innerText = `시간: ${catchState.timeLeft}s`;
+                if (catchState.timeLeft <= 0) {
+                    endCatchGame();
+                }
+            }, 1000);
+
+            cancelAnimationFrame(catchState.animId);
+            runCatchLoop();
+        }
+
+        function runCatchLoop() {
+            const ctx = catchState.ctx;
+            const w = catchState.canvas.width;
+            const h = catchState.canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Spawn items
+            if (Math.random() < 0.055) {
+                const isGood = Math.random() > 0.35;
+                const template = isGood 
+                    ? CATCH_GOOD[Math.floor(Math.random() * CATCH_GOOD.length)]
+                    : CATCH_BAD[Math.floor(Math.random() * CATCH_BAD.length)];
+
+                catchState.items.push({
+                    x: Math.random() * (w - 40) + 20,
+                    y: -20,
+                    speed: 2.5 + Math.random() * 2.5,
+                    ...template
+                });
+            }
+
+            // Draw Basket
+            ctx.fillStyle = '#D97706';
+            ctx.beginPath();
+            ctx.rect(catchState.basket.x, catchState.basket.y, catchState.basket.w, catchState.basket.h);
+            ctx.fill();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 11px Gothic A1';
+            ctx.fillText('🧺 바구니', catchState.basket.x + 12, catchState.basket.y + 15);
+
+            // Update & Draw Items
+            for (let i = catchState.items.length - 1; i >= 0; i--) {
+                const item = catchState.items[i];
+                item.y += item.speed;
+
+                ctx.font = '26px serif';
+                ctx.fillText(item.icon, item.x - 13, item.y);
+
+                // Collision
+                if (
+                    item.y >= catchState.basket.y - 12 &&
+                    item.y <= catchState.basket.y + catchState.basket.h &&
+                    item.x >= catchState.basket.x - 10 &&
+                    item.x <= catchState.basket.x + catchState.basket.w + 10
+                ) {
+                    catchState.score += item.pts;
+                    if (item.pts > 0) playSoundEffect('correct');
+                    else playSoundEffect('wrong');
+
+                    document.getElementById('catchScoreText').innerText = `점수: ${catchState.score}점`;
+                    catchState.items.splice(i, 1);
+                    continue;
+                }
+
+                if (item.y > h + 30) {
+                    catchState.items.splice(i, 1);
+                }
+            }
+
+            catchState.animId = requestAnimationFrame(runCatchLoop);
+        }
+
+        function endCatchGame() {
+            clearInterval(catchState.timer);
+            cancelAnimationFrame(catchState.animId);
+            closeGame('catch');
+
+            const finalScore = Math.max(0, catchState.score);
+            if (finalScore > state.highScores.catch) state.highScores.catch = finalScore;
+            addScore(finalScore);
+            showResult("수집가 게임 종료!", `유물을 스피디하게 잘 수집했습니다!`, finalScore);
+        }
+
+        function closeGame(type) {
+            playSoundEffect('flip');
+            if (type === 'quiz') document.getElementById('gameQuizModal').classList.add('hidden');
+            if (type === 'memory') {
+                clearInterval(memoryState.timer);
+                document.getElementById('gameMemoryModal').classList.add('hidden');
+            }
+            if (type === 'timeline') document.getElementById('gameTimelineModal').classList.add('hidden');
+            if (type === 'catch') {
+                clearInterval(catchState.timer);
+                cancelAnimationFrame(catchState.animId);
+                document.getElementById('gameCatchModal').classList.add('hidden');
+            }
+        }
+
+        /* ==========================================================================
+           9. MUSEUM & BADGES LOGIC
+           ========================================================================== */
+
+        function renderMuseum(filter = 'all') {
+            const grid = document.getElementById('museumGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            ARTIFACTS_DATA.forEach(art => {
+                const isUnlocked = state.unlockedArtifacts.includes(art.id);
+                if (filter !== 'all' && art.era !== filter) return;
+
+                const card = document.createElement('div');
+                card.className = `p-5 rounded-3xl border-2 transition-all shadow-sm ${
+                    isUnlocked 
+                        ? 'bg-white border-amber-300 hover:shadow-lg' 
+                        : 'bg-slate-100 border-slate-200 opacity-60'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-3xl">${isUnlocked ? art.icon : '🔒'}</span>
+                        <span class="text-[10px] font-black px-2.5 py-1 rounded-full ${
+                            isUnlocked ? 'bg-amber-100 text-amber-900' : 'bg-slate-200 text-slate-500'
+                        }">${art.era}</span>
+                    </div>
+                    <h4 class="font-black text-slate-800 text-base mb-1">${isUnlocked ? art.name : '미지의 역사 유물'}</h4>
+                    <p class="text-xs text-slate-500 font-bold mb-3 leading-relaxed">${isUnlocked ? art.desc : '퀴즈 및 미니게임에 도전하여 잠금을 해제하세요!'}</p>
+                    
+                    ${isUnlocked ? `
+                        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs text-amber-950">
+                            <span class="font-black text-amber-900 block mb-1">💡 역사의 쓸모 코칭: ${art.wisdomTitle}</span>
+                            <p class="font-medium text-[11px] leading-relaxed text-slate-700">${art.wisdom}</p>
+                        </div>
+                    ` : `
+                        <div class="text-center py-2.5 bg-slate-200/60 rounded-2xl text-[11px] font-black text-slate-500">
+                            🔒 탐험 점수로 잠금 해제 중
+                        </div>
+                    `}
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function filterMuseum(era, btnEl) {
+            playSoundEffect('flip');
+            document.querySelectorAll('.museum-filter-btn').forEach(btn => {
+                btn.className = "museum-filter-btn px-3 py-1.5 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200";
+            });
+            btnEl.className = "museum-filter-btn px-3 py-1.5 rounded-xl text-xs font-black bg-amber-500 text-white shadow-sm";
+            renderMuseum(era);
+        }
+
+        function unlockRandomArtifact() {
+            const locked = ARTIFACTS_DATA.filter(a => !state.unlockedArtifacts.includes(a.id));
+            if (locked.length > 0) {
+                const picked = locked[Math.floor(Math.random() * locked.length)];
+                state.unlockedArtifacts.push(picked.id);
+                saveLocalStorage();
+            }
+        }
+
+        function unlockArtifactById(id) {
+            if (!state.unlockedArtifacts.includes(id)) {
+                state.unlockedArtifacts.push(id);
+                saveLocalStorage();
+            }
+        }
+
+        function checkBadgeUnlocks() {
+            if (state.totalScore > 0 && !state.earnedBadges.includes('b1')) state.earnedBadges.push('b1');
+            if (state.highScores.quiz >= 300 && !state.earnedBadges.includes('b2')) state.earnedBadges.push('b2');
+            if (state.highScores.memory > 0 && !state.earnedBadges.includes('b3')) state.earnedBadges.push('b3');
+            if (state.highScores.timeline > 0 && !state.earnedBadges.includes('b4')) state.earnedBadges.push('b4');
+            if (state.totalScore >= 1000 && !state.earnedBadges.includes('b5')) state.earnedBadges.push('b5');
+            renderBadges();
+        }
+
+        function renderBadges() {
+            const container = document.getElementById('badgeContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            BADGES_DATA.forEach(badge => {
+                const isEarned = state.earnedBadges.includes(badge.id);
+                const badgeEl = document.createElement('div');
+                badgeEl.className = `p-2.5 rounded-2xl border flex flex-col items-center justify-center text-center transition ${
+                    isEarned ? 'bg-amber-50 border-amber-300' : 'bg-slate-100 border-slate-200 opacity-40'
+                }`;
+                badgeEl.innerHTML = `
+                    <span class="text-2xl mb-1">${badge.icon}</span>
+                    <span class="text-xs font-black text-slate-800">${badge.name}</span>
+                    <span class="text-[9px] text-slate-500 font-bold mt-0.5">${badge.condition}</span>
+                `;
+                container.appendChild(badgeEl);
+            });
+
+            document.getElementById('badgeCountText').innerText = `${state.earnedBadges.length} / ${BADGES_DATA.length} 획득`;
+        }
+
+        /* ==========================================================================
+           10. LEADERBOARD SYSTEM
+           ========================================================================== */
+
+        function updateLeaderboardSelf() {
+            const existingIdx = state.leaderboard.findIndex(item => item.name === state.nickname);
+            if (existingIdx !== -1) {
+                state.leaderboard[existingIdx].score = Math.max(state.leaderboard[existingIdx].score, state.totalScore);
+                state.leaderboard[existingIdx].badges = state.earnedBadges.length;
+                state.leaderboard[existingIdx].avatar = state.avatar;
+            } else {
+                state.leaderboard.push({
+                    rank: 0,
+                    avatar: state.avatar,
+                    name: state.nickname,
+                    badges: state.earnedBadges.length,
+                    score: state.totalScore
+                });
+            }
+
+            state.leaderboard.sort((a, b) => b.score - a.score);
+            state.leaderboard.forEach((item, idx) => item.rank = idx + 1);
+
+            saveLocalStorage();
+            renderLeaderboard();
+        }
+
+        function renderLeaderboard() {
+            const list = document.getElementById('leaderboardList');
+            if (!list) return;
+            list.innerHTML = '';
+
+            state.leaderboard.slice(0, 10).forEach(player => {
+                const isMe = player.name === state.nickname;
+                const row = document.createElement('div');
+                row.className = `p-4 flex justify-between items-center text-xs sm:text-sm font-bold transition ${
+                    isMe ? 'bg-amber-100/80 text-amber-950 border-l-4 border-amber-500 font-black' : 'hover:bg-slate-50 text-slate-700'
+                }`;
+
+                let rankBadge = `${player.rank}위`;
+                if (player.rank === 1) rankBadge = '🥇 1위';
+                if (player.rank === 2) rankBadge = '🥈 2위';
+                if (player.rank === 3) rankBadge = '🥉 3위';
+
+                row.innerHTML = `
+                    <span class="w-14 text-center font-black text-amber-600">${rankBadge}</span>
+                    <div class="flex-1 px-4 flex items-center space-x-2 truncate">
+                        <span class="text-xl">${player.avatar}</span>
+                        <span class="font-extrabold truncate">${player.name} ${isMe ? '(나)' : ''}</span>
+                    </div>
+                    <span class="w-24 text-center text-[11px] bg-slate-100 py-1 rounded-full text-slate-600 font-bold">뱃지 ${player.badges}개</span>
+                    <span class="w-28 text-right font-black text-amber-600">${player.score.toLocaleString()} 점</span>
+                `;
+
+                list.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
